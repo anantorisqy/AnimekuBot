@@ -10,10 +10,7 @@ const canvas = require('discord-canvas')
 const { ownerBot } = require('./config.json')
 const fs = require('fs-extra')
 const { groupLimit, memberLimit } = require('./database/bot/setting.json')
-const express = require('express')
-const { createSerial } = require('./tools')
-const { daily, level, register, afk, reminder, premium, limit} = require('../function')
-const app = express()
+
 
 const start = (bocchi = new Client()) => {
     console.log(color(figlet.textSync('BocchiBot', 'Larry 3D'), 'cyan'))
@@ -24,36 +21,6 @@ const start = (bocchi = new Client()) => {
     console.log(color('[DEV]', 'cyan'), color('Welcome back, Owner! Hope you are doing well~', 'magenta'))
 
     // Creating a localhost
-    app.get('/', function(req, res) {
-            return res.send(`<a href='/register'>Daftar Member</a>`)
-    })
-    app.get('/register', function (req, res) {
-        let html = `
-        <form method="POST" action="/auth/register">
-    <label>Username : </label>
-        <input type="text" name="username" placeholder="Masukan Username Anda">
-    <label>No.WA : </label>
-        <input type='number' name='nowa' placeholder='Masukan Nomor Whatsapp Anda'>
-    <label>Password : </label>
-        <input type='password' name='password' placeholder='Masukan Password Anda'>
-    <button type="Submit">Kirim</button>
-</form>
-        `
-        return res.send(html)
-    })
-    app.post('/auth/register', function(req,res) {
-        let username = req.body.username
-        let nowa = req.body.nowa
-        let password = req.body.password
-        let nomorwa = `${nowa}@c.us`
-        const serialUser = createSerial(20)
-        register.addRegisteredUser(nomorwa, username, password, _registered)
-        return res.redirect('https://animeku.id')
-    })
-    const PORT = process.env.PORT || 8080 || 5000 || 3000
-    app.listen(PORT, () => {
-        console.log(color('Localhost is running!', 'yellow'))
-    })  
 
     // Uncomment code di bawah untuk mengaktifkan auto-update file changes. Tidak disarankan untuk long-time use.
     // Uncomment code below to activate auto-update file changes. Not recommended for long-time use.

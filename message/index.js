@@ -360,13 +360,141 @@ module.exports = msgHandler = async (bocchi = new Client(), message) => {
         if (isCmd && !isPremium && !isOwner) msgFilter.addFilter(from)
 
         switch (command) {
-            case prefix+'help':
+            //Command Dasar
+            case 'start':
+            case prefix+'start':
+                await bocchi.reply(from, 'Untuk Menampilkan Menu Silahkan Ketik Command /menu')
+            break
+            case prefix+'register':
+            case prefix+'daftar':
+                if (isRegistered) return await bocchi.reply(from, ind.registeredAlready(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                const namauser = q
+                const serialUser = createSerial(20)
+                register.addRegisteredUser(sender.id, namauser, time, serialUser, _registered)
+                await bocchi.reply(from, ind.registered(namauser, sender.id, time, serialUser), id)
+                console.log(`Hey Admin Tolol Ada Member Baru`)
+                await bocchi.sendText(ownerNumber, `Ada Member Baru ${sender.id}\n${pushname}`)
+            break
             case prefix+'menu':
+            case prefix+'help':
                 if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
-                
-                await bocchi.sendText(from, text)
+                const jumlahUser = _registered.length
+                const levelMenu = level.getLevelingLevel(sender.id, _level)
+                const maRole = `Wibu`;
+                if (args[0] === '1') {
+                    await bocchi.sendText(from, ind.Buku(pushname))
+                } else if (args[0] === '2') {
+                    await bocchi.sendText(from, ind.Music(pushname))
+                } else if (args[0] === '3') {
+                    await bocchi.sendText(from, ind.Video(pushname))
+                } else if (args[0] === '4') {
+                    await bocchi.sendText(from, ind.Gambar(pushname))
+                } else if (args[0] === '5') {
+                    await bocchi.sendText(from, ind.News(pushname))
+                } else if (args[0] === '6') {
+                    await bocchi.sendText(from, ind.Fun(pushname))
+                } else if (args[0] === '7') {
+                    await bocchi.sendText(from, ind.NSFW(pushname))
+                } else if (args[0] === '8') {
+                    await bocchi.sendText(from, ind.Profile(pushname))
+                } else if (args[0] === '9') {
+                    await bocchi.sendText(from, ind.About(pushname))
+                } else if (args[0] === '10') {
+                    await bocchi.sendText(from, ind.Cash())
+                } else {
+                    await bocchi.sendText(from, ind.menu(pushname, levelMenu, maRole, jumlahUser))
+                }
             break
 
+            //Music
+            case prefix+'play':
+            case prefix+'p':
+            case prefix+'ytmp3':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let e = await axios.get(`https://api.lolhuman.xyz/api/ytplay?apikey=${lol}&query=${q}`)
+                let data = e.data.result
+                let thmb = data.info.thumbnail
+                let struktur = `
+                + Title: ${data.info.title}\n
+                + Channel: ${data.info.uploader}\n
+                + Duration: ${data.info.duration}\n
+                + Download Manual: ${data.audio.link}\n
+                
+                Note: Gunakan Download Manual Jika Musik Tidak Keluar -+5 Menit`              
+                await bocchi.sendFileFromUrl(from, thmb, 'animekubot.jpg', struktur, id)
+                await bocchi.sendFileFromUlr(from, `${data.audio.link}`, `${data.info.title}.mp3`, '', id)
+            break
+            case prefix+'jooxplay':
+            case prefix+'playjoox':
+            case prefix+'joox':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let e = await axios.get(`https://api.lolhuman.xyz/api/jooxplay?apikey=${lol}&query=${q}`)
+                let data = e.data.result
+                let struktur = `
+                + Judul: ${data.info.song}\n
+                + Penyanyi: ${data.info.singer}\n
+                + Durasi: ${data.info.duration}\n
+                + Download Manual: ${data.audio[0].link} [${data.audio[0].reso}]
+                
+                Note: Gunakan Download Manual Jika Musik Tidak Keluar -+5 Menit
+                `
+                await bocchi.sendFileFormUrl(from, `${data.image}`, `${data.info.song}.jpg`, struktur, id)
+                await bocchi.sendFIleFromUrl(from, `${data.audio[0].link}`, `${data.info.song}.mp3`, '', id)
+            break
+            case prefix+'spotify':
+            case prefix+'spotifyplay':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let e = await axios.get(`https://api.lolhuman.xyz/api/spotifysearch?apikey=${lol}&query=${q}`)
+                let link = e.data.result[0].link
+                let f = await axios.get(`https://api.lolhuman.xyz/api/spotify?apikey=${lol}&url=${link}`)
+                let data = f.data.result
+                let struktur = `
+                + Title: ${data.title}\n
+                + Singer: ${data.artists}\n
+                + Duration: ${data.duration}\n
+                + Download Manual: ${data.link}\n
+
+                Note: Gunakan Download Manual Jika Musik Tidak Keluar -+5 Menit
+                `
+                await bocchi.sendFileFromUrl(from, `${data.thumbnail}`, `${data.title}.jpg`, struktur, id)
+                await bocchi.sendFIleFromUlr(from, `${data.link}`, `${data.title}.mp3`, '', id)
+            break
+            case prefix+'soundcloud':
+            case prefix+'soudncloudplay':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!url) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let e = await axios.get(`https://api.lolhuman.xyz/api/soundcloud?apikey=${lol}&url=${url}`)
+                let data = e.data.result
+                let struktur = `
+                + Title: ${data.title}
+                + Download Manual: ${data.link}
+
+                Note: Gunakan Download Manual Jika Musik Tidak Keluar -+5 Menit
+                `
+                await bocchi.sendFileFromUrl(from, `${data.link}`, `${data.title}.mp3`, struktur, id)
+            break
+            //Video
+            case prefix+'pvideo':
+            case prefix+'playvideo':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let e = await axios.get(`https://api.lolhuman.xyz/api/ytplay?apikey=${lol}&query=${q}`)
+                let data = e.data.result
+                let thmb = data.info.thumbnail
+                let struktur = `
+                + Title: ${data.info.title}\n
+                + Channel: ${data.info.uploader}\n
+                + Duration: ${data.info.duration}\n
+                + Download Manual: ${data.audio.link}\n
+                
+                Note: Gunakan Download Manual Jika Musik Tidak Keluar -+5 Menit`      
+                await bocchi.sendFileFromUrl(from, thmb, 'animekubot.jpg', struktur, id)
+                await bocchi.sendFileFromUlr(from, `${data.video.link}`, `${data.info.title}.mp4`, '', id)
+            break
             default:
                 if (isCmd) {
                     await bocchi.reply(from, ind.cmdNotFound(command), id)

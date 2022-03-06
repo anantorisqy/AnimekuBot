@@ -93,19 +93,7 @@ exports.botNotAdmin = () => {
     return `Jadikan bot sebagai admin terlebih dahulu!`
 }
 
-exports.ytFound = (res) => {
-    return `
-*── 「 YOUTUBE 」 ──*
 
-Video ditemukan!
-➸ *Judul*: ${res.title}
-➸ *Deskripsi*:
-${res.desc}
-➸ *Durasi*: ${res.duration}
-
-Media sedang dikirim, mohon tunggu...
-    `
-}
 
 exports.notRegistered = () => {
     return `Kamu belum terdaftar di database!\n\nSilakan register dengan format:\n*${prefix}register* nama | umur`
@@ -572,7 +560,7 @@ exports.nameChanged = (q) => {
     return `Username berhasil diubah ke *${q}*`
 }
 
-exports.menu = (pushname) => {
+exports.menu = (pushname, level, maRole, jumlahUser) => {
     return `
 [Pengumuman]
 Untuk Bisa Mengakses Menu 7 Harus Mendapatkan Role *ANAK-DAJJAL* Thanks.
@@ -588,6 +576,13 @@ Hallo ${pushname}, Berikut Adalah Menu Command dari Bot ini:
 *${prefix}menu 7* [NSFW]
 *${prefix}menu 8* [Profile]
 *${prefix}menu 9* [About Bot]
+*${prefix}menu 10* [A-Cash]
+
+Statistik Bot: 
+Nickname: ${pushname}
+Level: ${level}
+Role: ${maRole}
+Member: ${jumlahUser}
 
     `
 }
