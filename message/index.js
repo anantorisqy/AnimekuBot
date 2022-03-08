@@ -406,8 +406,142 @@ module.exports = msgHandler = async (bocchi = new Client(), message) => {
                     await bocchi.sendText(from, ind.menu(pushname, levelMenu, maRole, jumlahUser))
                 }
             break
-
-     
+case prefix+'play':
+case prefix+'p':
+  if (isRegistered) return await bocchi.reply(from, ind.registeredAlready(), id)
+                if (!q) return await bocchi.reply(from, ind.wrongFormat(), id)
+                let ytplay = await axios.get(`https://api.lolhuman.xyz/api/ytplay?apikey=6e7c7ea7acecc46691a585ac&query=${q}`)
+                let yp = ytplay.data.result
+                let yptm = yp.info.thumbnail
+                let ypstruktur = `
+                + Title: ${yp.info.title}
+                + Channel: ${yp.info.uploader}
+                + Duration: ${yp.info.duration}
+                + Download Manual: ${yp.audio.link}
+                
+                Note: Jika Audio Belum Keluar -+5 Menit,  Silahkan Gunakan Link Download Manual
+                `l
+                await bocchi.sendFileFromUrl(from, yptm,  `${yp.info.title}.jpg`, ypstruktur,  id) 
+                await bocchi.sendFileFromUrl(from, `${yp.audio.link}`, `${yp.info.title}.mp3`, ``, id) 
+break
+     case prefix+'join':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isUrl(url) && !url.includes('chat.whatsapp.com')) return await bocchi.reply(from, ind.wrongFormat(), id)
+                const checkInvite = await bocchi.inviteInfo(url)
+                if (isOwner) {
+                    await bocchi.joinGroupViaLink(url)
+                    await bocchi.reply(from, ind.ok(), id)
+                    await bocchi.sendText(checkInvite.id, `Hello!! I was invited by ${pushname}`)
+                } else {
+                    const getGroupData = await bocchi.getAllGroups()
+                    if (getGroupData.length >= groupLimit) {
+                        await bocchi.reply(from, `Invite refused. Max group is: ${groupLimit}`, id)
+                    } else if (getGroupData.size <= memberLimit) {
+                        await bocchi.reply(from, `Invite refused. Minimum member is: ${memberLimit}`, id)
+                    } else {
+                        if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                        limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                        await bocchi.joinGroupViaLink(url)
+                        await bocchi.reply(from, ind.ok(), id)
+                        await bocchi.sendText(checkInvite.id, `Hello!! I was invited by ${pushname}`)
+                    }
+                }
+            break
+            case prefix+'serial':
+                if (!isRegistered) return await bocchi.reply(from, ind.registered(), id)
+                if (isGroupMsg) return await bocchi.reply(from, ind.pcOnly(), id)
+                if (args.length !== 1) return await bocchi.reply(from, ind.wrongFormat(), id)
+                const serials = args[0]
+                if (register.checkRegisteredUserFromSerial(serials, _registered)) {
+                    const name = register.getRegisteredNameFromSerial(serials, _registered)
+                    const age = register.getRegisteredAgeFromSerial(serials, _registered)
+                    const time = register.getRegisteredTimeFromSerial(serials, _registered)
+                    const id = register.getRegisteredIdFromSerial(serials, _registered)
+                    await bocchi.sendText(from, ind.registeredFound(name, age, time, serials, id))
+                } else {
+                    await bocchi.sendText(from, ind.registeredNotFound(serials))
+                }
+            break
+            case prefix+'limit':
+                if (isPremium || isOwner) return await bocchi.reply(from, '⤞ Limit left: ∞ (UNLIMITED)', id)
+                await bocchi.reply(from, `⤞ Limit left: ${limit.getLimit(sender.id, _limit, limitCount)} / 25\n\n*_Limit direset pada pukul 00:00 WIB_*`, id)
+            break
+case prefix+'mutegc':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isGroupMsg) return bocchi.reply(from, ind.groupOnly(), id)
+                if (!isGroupAdmins) return bocchi.reply(from, ind.adminOnly(), id)
+                if (!isBotGroupAdmins) return bocchi.reply(from, ind.botNotAdmin(), id)
+                if (ar[0] === 'enable') {
+                    if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                    limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                    await bocchi.setGroupToAdminsOnly(groupId, true)
+                    await bocchi.sendText(from, ind.gcMute())
+                } else if (ar[0] === 'disable') {
+                    if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                    limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                    await bocchi.setGroupToAdminsOnly(groupId, false)
+                    await bocchi.sendText(from, ind.gcUnmute())
+                } else {
+                    await bocchi.reply(from, ind.wrongFormat(), id)
+                }
+            break
+            case prefix+'add':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isGroupMsg) return await bocchi.reply(from, ind.groupOnly(), id)
+                if (!isGroupAdmins) return await bocchi.reply(from, ind.adminOnly(), id)
+                if (!isBotGroupAdmins) return await bocchi.reply(from, ind.botNotAdmin(), id)
+                if (args.length !== 1) return await bocchi.reply(from, ind.wrongFormat(), id)
+                try {
+                    if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                    limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                    await bocchi.addParticipant(from, `${args[0]}@c.us`)
+                    await bocchi.sendText(from, '🎉 Welcome! 🎉')
+                } catch (err) {
+                    console.error(err)
+                    await bocchi.reply(from, 'Error!', id)
+                }
+            break
+            case prefix+'kick':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isGroupMsg) return await bocchi.reply(from, ind.groupOnly(), id)
+                if (!isGroupAdmins) return await bocchi.reply(from, ind.adminOnly(), id)
+                if (!isBotGroupAdmins) return await bocchi.reply(from, ind.botNotAdmin(), id)
+                if (mentionedJidList.length === 0) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (mentionedJidList[0] === botNumber) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                await bocchi.sendTextWithMentions(from, `Good bye~\n${mentionedJidList.map(x => `@${x.replace('@c.us', '')}`).join('\n')}`)
+                for (let i of mentionedJidList) {
+                    if (groupAdmins.includes(i)) return await bocchi.sendText(from, ind.wrongFormat())
+                    await bocchi.removeParticipant(groupId, i)
+                }
+            break
+            case prefix+'promote':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isGroupMsg) return await bocchi.reply(from, ind.groupOnly(), id)
+                if (!isGroupAdmins) return await bocchi.reply(from, ind.adminOnly(), id)
+                if (!isBotGroupAdmins) return await bocchi.reply(from, ind.botNotAdmin(), id)
+                if (mentionedJidList.length !== 1) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (mentionedJidList[0] === botNumber) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (groupAdmins.includes(mentionedJidList[0])) return await bocchi.reply(from, ind.adminAlready(), id)
+                if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                await bocchi.promoteParticipant(groupId, mentionedJidList[0])
+                await bocchi.reply(from, ind.ok(), id)
+            break
+            case prefix+'demote':
+                if (!isRegistered) return await bocchi.reply(from, ind.notRegistered(), id)
+                if (!isGroupMsg) return await bocchi.reply(from, ind.groupOnly(), id)
+                if (!isGroupAdmins) return await bocchi.reply(from, ind.adminOnly(), id)
+                if (!isBotGroupAdmins) return await bocchi.reply(from, ind.botNotAdmin(), id)
+                if (mentionedJidList.length !== 1) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (mentionedJidList[0] === botNumber) return await bocchi.reply(from, ind.wrongFormat(), id)
+                if (!groupAdmins.includes(mentionedJidList[0])) return await bocchi.reply(from, ind.notAdmin(), id)
+                if (limit.isLimit(sender.id, _limit, limitCount, isPremium, isOwner)) return await bocchi.reply(from, ind.limit(), id)
+                limit.addLimit(sender.id, _limit, isPremium, isOwner)
+                await bocchi.demoteParticipant(groupId, mentionedJidList[0])
+                await bocchi.reply(from, ind.ok(), id)
+            break
             default:
                 if (isCmd) {
                     await bocchi.reply(from, ind.cmdNotFound(command), id)
